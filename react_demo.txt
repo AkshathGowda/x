@@ -1,27 +1,54 @@
 action
-import jsonPlaceholder from '../apis/JSONplaceholder.js';
-import { async } from 'q';
+import jsonPlaceholder from '../apis/JSONPlaceholder.js';
+
 
 export const fetchPosts=()=>async dispatch=>
   {
     const response=await jsonPlaceholder.get('/posts');
-   dispatch({type:'FETCH_POSTS',payload:response})
+   dispatch({type:'FETCH_POSTS',payload:response.data})
   };
 
+  export const fetchUser =id=> async dispatch=>
+
+  {
+    const response=await jsonPlaceholder.get(`/users/${id}`);
+    dispatch({type:'FETCH_USER',payload:response.data});
+  };
 --------------------------
 reducers
 import {combineReducers} from 'redux';
 import PostReducer from './PostReducer';
+import UserReducer from './UserReducer';
 
 export default combineReducers({
-    posts:PostReducer
+    posts:PostReducer,
+    users:UserReducer
 });
 
 
 
-**export default  ()=>
+1)export default  (state=[],action)=>
 {
-    return null;
+   
+    switch(action.type)
+    {
+        case 'FETCH_POSTS':
+        return action.payload;
+       default:
+                return state;
+    }
+};
+
+2)export default  (state=[],action)=>
+{
+   
+    switch(action.type)
+    {
+        case 'FETCH_POSTS':
+        return action.payload;
+       default:
+                return state;
+    }
 };
 -------------------------------
  components
@@ -44,22 +71,85 @@ export default App
 2)import React, { Component } from 'react'
 import {connect} from 'react-redux';
 import {fetchPosts} from '../actions';
+import UserHeader from './UserHeader'
 
  class PostList extends Component {
      componentDidMount()
      {
          this.props.fetchPosts();
      }
+     renderList()
+     {
+         return this.props.posts.map(post=>
+            {
+              return(
+                  <div className="item" key={post.id}>
+                    <div>
+                        <h4>{post.title}</h4>
+                        <p>{post.body}</p>
+                        
+                    </div>
+                   
+                       <UserHeader UserId={post.userId}/>
+                  
+                  </div>
+              );
+            })
+     }
     render() {
+        console.log(this.props.posts);
         return (
             <div>
-                PostList
+              {this.renderList()}
             </div>
-        )
+        );
     }
 }
+ 
 
-export default connect(null,{fetchPosts})(PostList)
+const mapStateToProps=(state)=>
+{
+return{posts:state.posts}
+}
+
+export default connect(
+    mapStateToProps,
+    {fetchPosts}
+    )(PostList)
+    
+    
+ 3)import React, { Component } from 'react'
+import {connect} from 'react-redux';
+import {fetchUser} from '../actions'
+
+ class UserHeader extends Component {
+     componentDidMount()
+     {
+         this.props.fetchUser(this.props.UserId);
+     }
+    
+     render() {
+
+        const {user}=this.props;
+      
+        if(!user)
+        {
+           return null;
+        }
+      return (<div><h2>{user.name}</h2></div>);
+        
+
+    };
+}
+const mapStateToProps=(state,ownProps)=>{
+    return{user:state.users.find(user=>user.id===ownProps.UserId)}
+}
+
+export default connect(mapStateToProps, {fetchUser})(UserHeader);
+    
+   
+    
+   
 -----------------------------
  apis
 import axios from 'axios';
