@@ -1,0 +1,87 @@
+action
+import jsonPlaceholder from '../apis/JSONplaceholder.js';
+import { async } from 'q';
+
+export const fetchPosts=()=>async dispatch=>
+  {
+    const response=await jsonPlaceholder.get('/posts');
+   dispatch({type:'FETCH_POSTS',payload:response})
+  };
+
+--------------------------
+reducers
+import {combineReducers} from 'redux';
+import PostReducer from './PostReducer';
+
+export default combineReducers({
+    posts:PostReducer
+});
+
+
+
+**export default  ()=>
+{
+    return null;
+};
+-------------------------------
+ components
+
+import React, { Component } from 'react'
+import PostList from './PostList';
+
+ class App extends Component {
+    render() {
+        return (
+            <div>
+                <PostList />
+            </div>
+        )
+    }
+}
+
+export default App
+
+2)import React, { Component } from 'react'
+import {connect} from 'react-redux';
+import {fetchPosts} from '../actions';
+
+ class PostList extends Component {
+     componentDidMount()
+     {
+         this.props.fetchPosts();
+     }
+    render() {
+        return (
+            <div>
+                PostList
+            </div>
+        )
+    }
+}
+
+export default connect(null,{fetchPosts})(PostList)
+-----------------------------
+ apis
+import axios from 'axios';
+
+ export default axios.create(
+     {
+         baseURL:'https://jsonplaceholder.typicode.com'
+     }
+ )
+------------------------------
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
+import {createStore,applyMiddleware} from 'redux';
+import thunk from 'redux-thunk';
+
+import App from './components/App';
+import reducers from './reducers';
+
+const store=createStore(reducers,applyMiddleware(thunk));
+
+ReactDOM.render(<Provider store={store}>
+    <App />
+</Provider>,
+document.querySelector("#root"));
