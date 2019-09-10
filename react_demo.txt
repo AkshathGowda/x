@@ -12,7 +12,48 @@ export const fetchPosts=()=>async dispatch=>
 
   {
     const response=await jsonPlaceholder.get(`/users/${id}`);
+    dispaimport jsonPlaceholder from '../apis/JSONPlaceholder.js';
+
+export const fetchPostAndUser=()=>async (dispatch,getState)=>
+{
+  console.log("about to fetch")
+ await dispatch( fetchPosts());
+ 
+ console.log(getState().posts);
+} 
+
+
+
+
+export const fetchPosts=()=>async dispatch=>
+  {
+    const response=await jsonPlaceholder.get('/posts');
+   dispatch({type:'FETCH_POSTS',payload:response.data})
+  };
+
+
+  export const fetchUser =id=>async dispatch=>
+
+  {
+   
+    const response=await jsonPlaceholder.get(`/users/${id}`);
     dispatch({type:'FETCH_USER',payload:response.data});
+  };
+
+  
+ /* export const fetchUser =id=> dispatch=>
+
+  {
+    _fetchUser(id,dispatch);
+  };
+
+   
+  const _fetchUser=_.memoize(async(id,dispatch) =>
+  {
+    const response=await jsonPlaceholder.get(`/users/${id}`);
+    dispatch({type:'FETCH_USER',payload:response.data});
+  });*/
+tch({type:'FETCH_USER',payload:response.data});
   };
 --------------------------
 reducers
@@ -70,13 +111,13 @@ export default App
 
 2)import React, { Component } from 'react'
 import {connect} from 'react-redux';
-import {fetchPosts} from '../actions';
+import {fetchPostAndUser} from '../actions';
 import UserHeader from './UserHeader'
 
  class PostList extends Component {
      componentDidMount()
      {
-         this.props.fetchPosts();
+         this.props.fetchPostAndUser();
      }
      renderList()
      {
@@ -114,7 +155,7 @@ return{posts:state.posts}
 
 export default connect(
     mapStateToProps,
-    {fetchPosts}
+    {fetchPostAndUser}
     )(PostList)
     
     
